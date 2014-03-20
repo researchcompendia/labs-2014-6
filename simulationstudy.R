@@ -41,13 +41,13 @@ library(metafor)
 ###################################
 
 ### Settings for simulations
-rep         <- 5000
+rep         <- 200 #5000
 Etrue       <- 0.3
 sigma       <- 1                
 n           <- 50
 alpha       <- 0.05
-n.stu       <- 1500
-nrpubs      <- 40
+n.stu       <- 500 #1500
+nrpubs      <- 20 #40
 se          <- sigma/sqrt(n)
 dsign       <- qnorm(.025,mean=0,sd=1,lower.tail=FALSE)
 prec        <- 0.05
@@ -72,7 +72,7 @@ n.stu_SP <- vector(length = rep)
 
 ### Start simulations
 for (r in 1:rep){
-  
+  print(r)
   ### Create new objects for storing scores and its ses
   scores <- matrix(NA, nrow = n, ncol = n.stu)
   se.scores <- numeric()
@@ -160,13 +160,19 @@ for(q in 1:n.stu) {
 }
 
 test <- matrix(NA, nrow = rep, ncol = nrpubs)
-
 for(z in 1:rep) {
-  test[z, ] <- tmp[z, ][!is.na(tmp[z, ])]
+	print(length(test[z,]))
+	print(length(tmp[z, ][!is.na(tmp[z, ])]))
+	if(length(test[z,])==length(tmp[z, ][!is.na(tmp[z, ])])){
+		test[z, ] <- tmp[z, ][!is.na(tmp[z, ])]
+	}
+	else {
+		test[z, ] <- c(tmp[z,!is.na(tmp[z, ])], rep(0,(length(test[z,])-length(tmp[z, ][!is.na(tmp[z, ])]))))
+	}
 }
 
 ### Mean of cumalative meta-analytic effect for PE
-colMeans(Emeta_PE[ ,1:40])
+plot_Emeta_PE_mean <- colMeans(Emeta_PE[ ,1:nrpubs])
 
 ### Mean of cumalative meta-analytic effect for SP
 plot_Emeta_SP_mean <- colMeans(test)
@@ -178,23 +184,34 @@ plot_sd_PE_DWH <- apply(Emeta_PE[ ,1:nrpubs], 2, sd)
 plot_sd_SP_DWH <- apply(test, 2, sd)
 
 ### New way of calculating precision of the cumulative meta-effect (PE) (van Assen, van Aert, Nuijten, & Wicherts, 2013)
-plot_sd_PE_new <- colMeans(se_PE_RE[ ,1:40])
+plot_sd_PE_new <- colMeans(se_PE_RE[ ,1:nrpubs])
 
 ### New way of calculating precision of the cumulative meta-effect (SP) (van Assen, van Aert, Nuijten, & Wicherts, 2013)
 ### Only select standard errors of published studies
 se_SP_final <- matrix(numeric(),nrow=rep,ncol=nrpubs)
 
 for(r in 1:rep){
-  se_SP_final[r, ] <- se_SP_RE[r,!is.na(Epub_SP[r,])]
+	if(length(se_SP_final[r,])==length(se_SP_RE[r,!is.na(Epub_SP[r,])])){
+		se_SP_final[r, ] <- se_SP_RE[r,!is.na(Epub_SP[r,])]
+	}
+	else {
+		se_SP_final[r, ] <- c(se_SP_RE[r,!is.na(Epub_SP[r,])], 
+			rep(0,length(se_SP_final[r, ])-length(se_SP_RE[r,!is.na(Epub_SP[r,])])))
+	}
+	  #se_SP_final[r, ] <- se_SP_RE[r,!is.na(Epub_SP[r,])]
 }
-
 plot_sd_SP_new <- colMeans(se_SP_final)
 
 ############################# PLOT 1 ########################################
 
 ### Plots similar to Figure 3 of De Winter and Happee
+jpeg('rplot1.jpg',width=800,height=600)
 plot(1:nrpubs,plot_Emeta_PE_mean,type="l",col="black",ylim=c(.15,.5),
      main="Cumulative Meta-Effect with Precision According to DWH")
+#plot(1:nrpubs,plot_Emeta_PE_mean,type="l",col="black",ylim=c(.15,.5),
+#     main="Cumulative Meta-Effect with Precision According to DWH")
+print("plot1 done")
+
 lines(1:nrpubs,plot_Emeta_SP_mean,col="red")
 
 lines(1:nrpubs,plot_Emeta_PE_mean-plot_sd_PE_DWH,col="black",lty=2)
@@ -202,10 +219,14 @@ lines(1:nrpubs,plot_Emeta_PE_mean+plot_sd_PE_DWH,col="black",lty=2)
 
 lines(1:nrpubs,plot_Emeta_SP_mean-plot_sd_SP_DWH,col="red",lty=2)
 lines(1:nrpubs,plot_Emeta_SP_mean+plot_sd_SP_DWH,col="red",lty=2)
+print("plot1 done")
+dev.off()
 
 ############################# PLOT 2 ########################################
 
 ### Plots with new SE
+jpeg('rplot2.jpg',width=800,height=600)
+
 plot(1:nrpubs,plot_Emeta_PE_mean,type="l",col="black",ylim=c(.1,.5), lwd = 2, bty = "n", cex.lab = .9, cex.axis = .9,
      ylab = expression(paste(Mean ~ "\u00B1" ~ SE ~ meta-analysis)), xlab = "Publication number", yaxt = "n")
 lines(1:nrpubs,plot_Emeta_SP_mean,col="red", lwd = 1.8)
@@ -269,13 +290,13 @@ mean(tau2_SP_RE_final)
 rm(list=ls())   
 
 ### Settings for simulations
-rep         <- 5000
+rep         <- 500 #5000
 Etrue       <- 0
 sigma       <- 1                
-n           <- 50
-alpha       <- 0.05
-n.stu       <- 1000
-nrpubs      <- 40
+n           <- 50	
+alpha       <- 0.1	#0.05
+n.stu       <- 500	#1000
+nrpubs      <- 40	#40
 dsign       <- qnorm(.025,mean=0,sd=1,lower.tail=FALSE)
 
 ### Empty vectors/matrices to store results
@@ -587,3 +608,5 @@ for(r in 1:rep){
 }
 
 mean(se_SP_RE_neg_final, na.rm = TRUE)
+dev.off()
+quartz()

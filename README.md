@@ -4,7 +4,7 @@ primitive that it is just a bash script, seriously. that's primitive.
 This is essentially what I packaged up as verification code for the [Why
 Publishing Everything Is More Effective than Selective Publishing of
 Statistically Significant
-Results](http://labs.researchcompendia.org/compendia/2/) labs page which
+Results](http://labs.researchcompendia.org/compendia/2014.6/) labs page which
 is based off of [this production example](http://researchcompendia.org/compendia/418/).
 
 Additionally, the R code accompanying the paper would have taken quite a
